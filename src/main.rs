@@ -38,7 +38,7 @@ fn raw_noise_a_node(xs: &[i32]) -> f32 {
 		a ^= x;
 		b ^= 17 * (i as i32 + 11) + x;
 		std::mem::swap(&mut a, &mut b);
-		a ^= a << ((i + 7) % (b % 11 + 5) as usize);
+		a ^= a << ((i + 7) % (((b % 11) as usize).saturating_add(5)));
 	}
 	positive_fract(f32::cos(a as f32 + b as f32))
 }
@@ -115,6 +115,80 @@ fn image_generator_test_03(rx: f32, ry: f32) -> image::Rgb<u8> {
 	])
 }
 
+fn image_generator_test_04(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale = 10.0;
+	let nosie_value_r = octaves_noise_a(1, &[rx * scale, ry * scale], &[1]);
+	let nosie_value_g = octaves_noise_a(1, &[rx * scale, ry * scale], &[2]);
+	let nosie_value_b = octaves_noise_a(1, &[rx * scale, ry * scale], &[3]);
+	image::Rgb([
+		if nosie_value_r < 0.5 { 0u8 } else { 255u8 },
+		if nosie_value_g < 0.5 { 0u8 } else { 255u8 },
+		if nosie_value_b < 0.5 { 0u8 } else { 255u8 },
+	])
+}
+
+fn image_generator_test_05(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale_a = 5.0;
+	let scale_b = 5.0;
+	let nosie_value_x = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[1]);
+	let nosie_value_y = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[2]);
+	let power = 1.0;
+	let x = rx + (nosie_value_x * 2.0 - 1.0) * power;
+	let y = ry + (nosie_value_y * 2.0 - 1.0) * power;
+	let nosie_value = octaves_noise_a(6, &[x * scale_b, y * scale_b], &[3]);
+	let gray = (nosie_value * 255.0) as u8;
+	image::Rgb([gray, gray, gray])
+}
+
+fn image_generator_test_06(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale_a = 5.0;
+	let scale_b = 5.0;
+	let nosie_value_x = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[1]);
+	let nosie_value_y = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[2]);
+	let power = 1.0;
+	let x = rx + (nosie_value_x * 2.0 - 1.0) * power;
+	let y = ry + (nosie_value_y * 2.0 - 1.0) * power;
+	let nosie_value = octaves_noise_a(6, &[x * scale_b, y * scale_b], &[3]);
+	let gray = if nosie_value < 0.5 { 0u8 } else { 255u8 };
+	image::Rgb([gray, gray, gray])
+}
+
+fn image_generator_test_07(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale_a = 5.0;
+	let scale_p = 2.0;
+	let scale_b = 5.0;
+	let nosie_value_x = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[1]);
+	let nosie_value_y = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[2]);
+	let power = octaves_noise_a(4, &[rx * scale_p, ry * scale_p], &[4]);
+	let x = rx + (nosie_value_x * 2.0 - 1.0) * power;
+	let y = ry + (nosie_value_y * 2.0 - 1.0) * power;
+	let nosie_value = octaves_noise_a(6, &[x * scale_b, y * scale_b], &[3]);
+	let gray = (nosie_value * 255.0) as u8;
+	image::Rgb([gray, gray, gray])
+}
+
+fn image_generator_test_08(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale_a = 5.0;
+	let scale_b = 5.0;
+	let nosie_value_a = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[1]);
+	let nosie_value_b = octaves_noise_a(5, &[rx * scale_b, ry * scale_b], &[2]);
+	let intersection = 1.0 - f32::abs(nosie_value_a - nosie_value_b) / 2.0;
+	let value = intersection * intersection * intersection * intersection * intersection;
+	let gray = (value * 255.0) as u8;
+	image::Rgb([gray, gray, gray])
+}
+
+fn image_generator_test_09(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale_a = 5.0;
+	let scale_b = 5.0;
+	let nosie_value_a = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[1]);
+	let nosie_value_b = octaves_noise_a(5, &[rx * scale_b, ry * scale_b], &[2]);
+	let intersection = 1.0 - f32::abs(nosie_value_a - nosie_value_b) / 2.0;
+	let value = intersection * intersection * intersection * intersection * intersection;
+	let gray = if value < 0.9 { 0u8 } else { 255u8 };
+	image::Rgb([gray, gray, gray])
+}
+
 fn main() {
 	let w = 800;
 	let h = 800;
@@ -123,7 +197,7 @@ fn main() {
 	for (px, py, pixel) in image.enumerate_pixels_mut() {
 		let rx = px as f32 / w as f32;
 		let ry = py as f32 / h as f32;
-		*pixel = image_generator_test_01(rx, ry);
+		*pixel = image_generator_test_09(rx, ry);
 	}
 
 	image.save("output.png").unwrap();
