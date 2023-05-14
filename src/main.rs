@@ -638,6 +638,8 @@ fn main() {
 		];
 		std::fs::create_dir_all("output").ok();
 		for (i, generator) in generators.iter().enumerate() {
+			let i_max = generators.len() - 1;
+			println!("{i} / {i_max}");
 			render_to_file(generator, 1000, format!("output/output_{i}.png"));
 		}
 	}
