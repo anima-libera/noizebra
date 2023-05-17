@@ -1,12 +1,10 @@
-use std::{
-	f32::consts::TAU,
-	hash::{Hash, Hasher},
-};
+use std::f32::consts::TAU;
 
 fn positive_fract(x: f32) -> f32 {
 	x - f32::floor(x)
 }
 
+#[allow(unused)]
 fn smoothstep(x: f32) -> f32 {
 	if x < 0.0 {
 		0.0
@@ -390,7 +388,7 @@ fn image_generator_test_22(rx: f32, ry: f32) -> image::Rgb<u8> {
 	let scale_d = 3.0;
 	let distance = 0.4 * octaves_noise_a(4, &[rx * scale_d, ry * scale_d], &[3]);
 	let rx = rx + f32::cos(angle) * distance;
-	let ry = ry + f32::sin(angle) * distance;
+	//let ry = ry + f32::sin(angle) * distance;
 	let gray = if rx < 0.5 { 0u8 } else { 255u8 };
 	image::Rgb([gray, gray, gray])
 }
@@ -412,7 +410,7 @@ fn image_generator_test_24(rx: f32, ry: f32) -> image::Rgb<u8> {
 	let nosie_value_b = octaves_noise_a(5, &[rx * scale_b, ry * scale_b], &[2]);
 	let angle = f32::atan2(nosie_value_a - 0.5, nosie_value_b - 0.5);
 	let value_a = f32::cos(angle * 3.5) * 0.5 + 0.5;
-	let value_b = f32::sin(angle) * 0.5 + 0.5;
+	//let value_b = f32::sin(angle) * 0.5 + 0.5;
 	let value_c = f32::cos(angle * 5.0) * 0.5 + 0.5;
 	image::Rgb([
 		(value_a * 255.0) as u8,
@@ -616,7 +614,7 @@ fn image_generator_test_35(rx: f32, ry: f32) -> image::Rgb<u8> {
 	let nosie_value_b = octaves_noise_a(5, &[rx * scale, ry * scale], &[2]);
 	let angle = f32::atan2(nosie_value_a - 0.5, nosie_value_b - 0.5);
 	let value = f32::cos(angle) * 0.5 + 0.5;
-	if value < 0.2 || 0.8 < value {
+	if !(0.2..=0.8).contains(&value) {
 		image::Rgb([0u8, 0u8, 0u8])
 	} else {
 		image::Rgb([255u8, 255u8, 255u8])
