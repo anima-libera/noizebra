@@ -1,4 +1,7 @@
-use std::f32::consts::TAU;
+use std::{
+	f32::consts::TAU,
+	hash::{Hash, Hasher},
+};
 
 fn positive_fract(x: f32) -> f32 {
 	x - f32::floor(x)
@@ -582,6 +585,149 @@ fn image_generator_test_32(rx: f32, ry: f32) -> image::Rgb<u8> {
 	])
 }
 
+fn image_generator_test_33(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale = 10.0;
+	let nosie_value_a = octaves_noise_a(5, &[rx * scale, ry * scale], &[1]);
+	let nosie_value_b = octaves_noise_a(5, &[rx * scale, ry * scale], &[2]);
+	let angle = f32::atan2(nosie_value_a - 0.5, nosie_value_b - 0.5);
+	let value = f32::cos(angle) * 0.5 + 0.5;
+	let gray = if 0.8 < value { 255u8 } else { 0u8 };
+	image::Rgb([gray, gray, gray])
+}
+
+fn image_generator_test_34(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale = 10.0;
+	let nosie_value_a = octaves_noise_a(5, &[rx * scale, ry * scale], &[1]);
+	let nosie_value_b = octaves_noise_a(5, &[rx * scale, ry * scale], &[2]);
+	let angle = f32::atan2(nosie_value_a - 0.5, nosie_value_b - 0.5);
+	let value = f32::cos(angle) * 0.5 + 0.5;
+	if 0.8 < value {
+		image::Rgb([255u8, 200u8, 0u8])
+	} else if value < 0.2 {
+		image::Rgb([255u8, 80u8, 255u8])
+	} else {
+		image::Rgb([0u8, 0u8, 0u8])
+	}
+}
+
+fn image_generator_test_35(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale = 10.0;
+	let nosie_value_a = octaves_noise_a(5, &[rx * scale, ry * scale], &[1]);
+	let nosie_value_b = octaves_noise_a(5, &[rx * scale, ry * scale], &[2]);
+	let angle = f32::atan2(nosie_value_a - 0.5, nosie_value_b - 0.5);
+	let value = f32::cos(angle) * 0.5 + 0.5;
+	if value < 0.2 || 0.8 < value {
+		image::Rgb([0u8, 0u8, 0u8])
+	} else {
+		image::Rgb([255u8, 255u8, 255u8])
+	}
+}
+
+fn image_generator_test_36(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale = 10.0;
+	let nosie_value_a = octaves_noise_a(5, &[rx * scale, ry * scale], &[1]);
+	let nosie_value_b = octaves_noise_a(5, &[rx * scale, ry * scale], &[2]);
+	let angle = f32::atan2(nosie_value_a - 0.5, nosie_value_b - 0.5);
+	let length = f32::hypot(nosie_value_a - 0.5, nosie_value_b - 0.5);
+	let value = f32::cos(angle) * 0.5 + 0.5;
+	if 0.8 < value {
+		if length < 0.1 {
+			image::Rgb([255u8, 80u8, 255u8])
+		} else {
+			image::Rgb([255u8, 255u8, 255u8])
+		}
+	} else {
+		image::Rgb([0u8, 0u8, 0u8])
+	}
+}
+
+fn image_generator_test_37(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale = 10.0;
+	let nosie_value_a = octaves_noise_a(5, &[rx * scale, ry * scale], &[1]);
+	let nosie_value_b = octaves_noise_a(5, &[rx * scale, ry * scale], &[2]);
+	let angle = f32::atan2(nosie_value_a - 0.5, nosie_value_b - 0.5);
+	let value_a = f32::cos(angle) * 0.5 + 0.5;
+	let value_b = f32::sin(angle) * 0.5 + 0.5;
+	image::Rgb([(value_a * 255.0) as u8, (value_b * 255.0) as u8, 0u8])
+}
+
+fn image_generator_test_38(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale = 10.0;
+	let nosie_value_a = octaves_noise_a(5, &[rx * scale, ry * scale], &[1]);
+	let nosie_value_b = octaves_noise_a(5, &[rx * scale, ry * scale], &[2]);
+	let angle = f32::atan2(nosie_value_a - 0.5, nosie_value_b - 0.5);
+	let value = f32::tan(angle);
+	let gray = (value * 255.0) as u8;
+	image::Rgb([gray, gray, gray])
+}
+
+fn image_generator_test_39(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let offset_scale = 10.0;
+	let offset_max = 3.0;
+	let offset = octaves_noise_a(5, &[rx * offset_scale, ry * offset_scale], &[3]);
+	let offset = offset * offset_max;
+	let scale = 10.0;
+	let nosie_value_a = octaves_noise_a(5, &[rx * scale, ry * scale, offset], &[1]);
+	let nosie_value_b = octaves_noise_a(5, &[rx * scale, ry * scale, offset], &[2]);
+	let angle = f32::atan2(nosie_value_a - 0.5, nosie_value_b - 0.5);
+	let value = f32::cos(angle) * 0.5 + 0.5;
+	let gray = (value * 255.0) as u8;
+	image::Rgb([gray, gray, gray])
+}
+
+fn image_generator_test_40(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let offset_scale = 10.0;
+	let offset_max = 3.0;
+	let offset = octaves_noise_a(5, &[rx * offset_scale, ry * offset_scale], &[3]);
+	let offset = offset * offset_max;
+	let scale = 10.0;
+	let nosie_value_a = octaves_noise_a(5, &[rx * scale, ry * scale, offset], &[1]);
+	let nosie_value_b = octaves_noise_a(5, &[rx * scale, ry * scale, offset], &[2]);
+	let angle = f32::atan2(nosie_value_a - 0.5, nosie_value_b - 0.5);
+	let value = f32::cos(angle) * 0.5 + 0.5;
+	let gray = if 0.8 < value { 255u8 } else { 0u8 };
+	image::Rgb([gray, gray, gray])
+}
+
+fn image_generator_test_41(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let offset_scale = 10.0;
+	let offset_max = 3.0;
+	let offset = octaves_noise_a(5, &[rx * offset_scale, ry * offset_scale], &[3]);
+	let offset = offset * offset_max;
+	let scale = 10.0;
+	let nosie_value_a = octaves_noise_a(5, &[rx * scale, ry * scale, offset], &[1]);
+	let nosie_value_b = octaves_noise_a(5, &[rx * scale, ry * scale, offset], &[2]);
+	let angle = f32::atan2(nosie_value_a - 0.5, nosie_value_b - 0.5);
+	let value = f32::cos(angle) * 0.5 + 0.5;
+	let gray = (value * 255.0) as u8;
+	image::Rgb([gray, gray, gray])
+}
+
+fn image_generator_test_42(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale_a = 10.0;
+	let nosie_value_x = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[1]);
+	let nosie_value_y = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[2]);
+	let scale_b = 1.0;
+	let value = octaves_noise_a(5, &[nosie_value_x * scale_b, nosie_value_y * scale_b], &[3]);
+	let gray = (value * 255.0) as u8;
+	image::Rgb([gray, gray, gray])
+}
+
+fn image_generator_test_43(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale = 10.0;
+	let n = 10;
+	let (i, _value) = (0..n)
+		.map(|i| octaves_noise_a(5, &[rx * scale, ry * scale], &[i]))
+		.enumerate()
+		.max_by_key(|(_i, value)| (value * 100.0) as u32)
+		.unwrap();
+	image::Rgb([
+		((i * 1827 + 237) % 256) as u8,
+		((i * 1911 + 141) % 256) as u8,
+		((i * 1137 + 883) % 256) as u8,
+	])
+}
+
 fn render_to_file(
 	generator: &dyn Fn(f32, f32) -> image::Rgb<u8>,
 	side: u32,
@@ -599,7 +745,7 @@ fn render_to_file(
 fn main() {
 	if false {
 		std::fs::create_dir_all("output").ok();
-		render_to_file(&image_generator_test_32, 800, "output/output.png");
+		render_to_file(&image_generator_test_43, 800, "output/output.png");
 	} else {
 		let generators = [
 			image_generator_test_00,
@@ -635,6 +781,17 @@ fn main() {
 			image_generator_test_30,
 			image_generator_test_31,
 			image_generator_test_32,
+			image_generator_test_33,
+			image_generator_test_34,
+			image_generator_test_35,
+			image_generator_test_36,
+			image_generator_test_37,
+			image_generator_test_38,
+			image_generator_test_39,
+			image_generator_test_40,
+			image_generator_test_41,
+			image_generator_test_42,
+			image_generator_test_43,
 		];
 		std::fs::create_dir_all("output").ok();
 		for (i, generator) in generators.iter().enumerate() {
