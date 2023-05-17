@@ -726,6 +726,105 @@ fn image_generator_test_43(rx: f32, ry: f32) -> image::Rgb<u8> {
 	])
 }
 
+fn image_generator_test_44(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale_a = 10.0;
+	let scale_b = 10.0;
+	let noise_value_a = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[1]);
+	let noise_value_b = octaves_noise_a(5, &[rx * scale_b, ry * scale_b], &[2]);
+	if f32::abs(noise_value_a - noise_value_b) < 0.05 {
+		image::Rgb([255u8, 255u8, 255u8])
+	} else if noise_value_a < noise_value_b {
+		image::Rgb([255u8, 200u8, 0u8])
+	} else if noise_value_b < noise_value_a {
+		image::Rgb([255u8, 80u8, 255u8])
+	} else {
+		unreachable!()
+	}
+}
+
+fn image_generator_test_45(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale_a = 10.0;
+	let noise_value_x = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[1]);
+	let noise_value_y = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[2]);
+	let power = 0.05;
+	let dx = (noise_value_x - 0.5) * 2.0 * power;
+	let dy = (noise_value_y - 0.5) * 2.0 * power;
+	let drx = rx + dx;
+	let dry = ry + dy;
+	let n = 10;
+	let scale_b = 10.0;
+	let mut value = 0.0;
+	for i in 0..n {
+		let ratio = i as f32 / (n - 1) as f32;
+		let rrx = rx * (1.0 - ratio) + drx * ratio;
+		let rry = ry * (1.0 - ratio) + dry * ratio;
+		let i_value = octaves_noise_a(5, &[rrx * scale_b, rry * scale_b], &[3]);
+		value += i_value;
+	}
+	let value = value / (n as f32);
+	let gray = (value * 255.0) as u8;
+	image::Rgb([gray, gray, gray])
+}
+
+fn image_generator_test_46(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale_a = 10.0;
+	let noise_value_x = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[1]);
+	let noise_value_y = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[2]);
+	let power = 0.2;
+	let dx = (noise_value_x - 0.5) * 2.0 * power;
+	let dy = (noise_value_y - 0.5) * 2.0 * power;
+	let drx = rx + dx;
+	let dry = ry + dy;
+	let n = 40;
+	let mut value = 0.0;
+	for i in 0..n {
+		let ratio = i as f32 / (n - 1) as f32;
+		let rrx = rx * (1.0 - ratio) + drx * ratio;
+		let rry = ry * (1.0 - ratio) + dry * ratio;
+		let i_value = if f32::hypot(0.5 - rrx, 0.5 - rry) < 0.3 {
+			1.0
+		} else {
+			0.0
+		};
+		value += i_value;
+	}
+	let value = value / (n as f32);
+	let gray = (value * 255.0) as u8;
+	image::Rgb([gray, gray, gray])
+}
+
+fn image_generator_test_47(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale_a = 10.0;
+	let noise_value_x = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[1]);
+	let noise_value_y = octaves_noise_a(5, &[rx * scale_a, ry * scale_a], &[2]);
+	let power = 0.2;
+	let dx = (noise_value_x - 0.5) * 2.0 * power;
+	let dy = (noise_value_y - 0.5) * 2.0 * power;
+	let drx = rx + dx;
+	let dry = ry + dy;
+	let value = if f32::hypot(0.5 - drx, 0.5 - dry) < 0.3 {
+		1.0
+	} else {
+		0.0
+	};
+	let gray = (value * 255.0) as u8;
+	image::Rgb([gray, gray, gray])
+}
+
+fn image_generator_test_48(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale_a = 10.0;
+	let noise_value_x = octaves_noise_a(8, &[rx * scale_a, ry * scale_a], &[1]);
+	let noise_value_y = octaves_noise_a(8, &[rx * scale_a, ry * scale_a], &[2]);
+	let power = 0.2;
+	let dx = (noise_value_x - 0.5) * 2.0 * power;
+	let dy = (noise_value_y - 0.5) * 2.0 * power;
+	let drx = rx + dx;
+	let dry = ry + dy;
+	let value = 1.0 - (f32::hypot(0.5 - drx, 0.5 - dry) * 4.0 - 0.8);
+	let gray = (value * 255.0) as u8;
+	image::Rgb([gray, gray, gray])
+}
+
 fn render_to_file(
 	generator: &dyn Fn(f32, f32) -> image::Rgb<u8>,
 	side: u32,
@@ -743,7 +842,7 @@ fn render_to_file(
 fn main() {
 	if false {
 		std::fs::create_dir_all("output").ok();
-		render_to_file(&image_generator_test_43, 800, "output/output.png");
+		render_to_file(&image_generator_test_48, 1000, "output/output.png");
 	} else {
 		let generators = [
 			image_generator_test_00,
@@ -790,11 +889,19 @@ fn main() {
 			image_generator_test_41,
 			image_generator_test_42,
 			image_generator_test_43,
+			image_generator_test_44,
+			image_generator_test_45,
+			image_generator_test_46,
+			image_generator_test_47,
+			image_generator_test_48,
 		];
 		std::fs::create_dir_all("output").ok();
 		for (i, generator) in generators.iter().enumerate() {
 			let i_max = generators.len() - 1;
 			println!("{i} / {i_max}");
+			if i == 31 || i == 32 {
+				println!("(Might take a bit longer...)");
+			}
 			render_to_file(generator, 1000, format!("output/output_{i}.png"));
 		}
 	}
