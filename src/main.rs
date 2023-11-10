@@ -4,6 +4,10 @@ fn positive_fract(x: f32) -> f32 {
 	x - f32::floor(x)
 }
 
+fn indentity(x: f32) -> f32 {
+	x
+}
+
 #[allow(unused)]
 fn smoothstep(x: f32) -> f32 {
 	if x < 0.0 {
@@ -825,6 +829,252 @@ fn image_generator_test_48(rx: f32, ry: f32) -> image::Rgb<u8> {
 	image::Rgb([gray, gray, gray])
 }
 
+fn image_generator_test_49(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale = 10.0;
+	let n = 10;
+	let mut values: Vec<_> = (0..n)
+		.map(|i| octaves_noise_a(5, &[rx * scale, ry * scale], &[i]))
+		.collect();
+	let (max_i, max_value) = values
+		.iter()
+		.copied()
+		.enumerate()
+		.max_by_key(|(_i, value)| (value * 100.0) as u32)
+		.unwrap();
+	values[max_i] = -1.0;
+	let (_second_max_i, second_max_value) = values
+		.iter()
+		.copied()
+		.enumerate()
+		.max_by_key(|(_i, value)| (value * 100.0) as u32)
+		.unwrap();
+	let diff = max_value - second_max_value;
+	let max_diff = 0.1;
+	let coef = f32::clamp(diff, 0.0, max_diff) / max_diff;
+	let base_rgb = [
+		((max_i * 1827 + 237) % 256) as f32,
+		((max_i * 1911 + 141) % 256) as f32,
+		((max_i * 1137 + 883) % 256) as f32,
+	];
+	let other_rgb = [
+		((max_i * 1426 + 119) % 256) as f32,
+		((max_i * 1892 + 223) % 256) as f32,
+		((max_i * 3219 + 332) % 256) as f32,
+	];
+	image::Rgb([
+		interpolate(&indentity, coef, 0.0, 1.0, base_rgb[0], other_rgb[0]) as u8,
+		interpolate(&indentity, coef, 0.0, 1.0, base_rgb[1], other_rgb[1]) as u8,
+		interpolate(&indentity, coef, 0.0, 1.0, base_rgb[2], other_rgb[2]) as u8,
+	])
+}
+
+fn image_generator_test_50(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale = 10.0;
+	let n = 10;
+	let mut values: Vec<_> = (0..n)
+		.map(|i| octaves_noise_a(5, &[rx * scale, ry * scale], &[i]))
+		.collect();
+	let (max_i, max_value) = values
+		.iter()
+		.copied()
+		.enumerate()
+		.max_by_key(|(_i, value)| (value * 100.0) as u32)
+		.unwrap();
+	values[max_i] = -1.0;
+	let (_second_max_i, second_max_value) = values
+		.iter()
+		.copied()
+		.enumerate()
+		.max_by_key(|(_i, value)| (value * 100.0) as u32)
+		.unwrap();
+	let diff = max_value - second_max_value;
+	let max_diff = 0.1;
+	let coef = f32::clamp(diff, 0.0, max_diff) / max_diff;
+	let max_rgb = [
+		((max_i * 1827 + 237) % 256) as f32,
+		((max_i * 1911 + 141) % 256) as f32,
+		((max_i * 1137 + 883) % 256) as f32,
+	];
+	let t_rgb = [127.0, 127.0, 127.0];
+	image::Rgb([
+		interpolate(&indentity, 1.0 - coef, 0.0, 1.0, max_rgb[0], t_rgb[0]) as u8,
+		interpolate(&indentity, 1.0 - coef, 0.0, 1.0, max_rgb[1], t_rgb[1]) as u8,
+		interpolate(&indentity, 1.0 - coef, 0.0, 1.0, max_rgb[2], t_rgb[2]) as u8,
+	])
+}
+
+fn image_generator_test_51(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale = 10.0;
+	let n = 10;
+	let mut values: Vec<_> = (0..n)
+		.map(|i| octaves_noise_a(5, &[rx * scale, ry * scale], &[i]))
+		.collect();
+	let (max_i, max_value) = values
+		.iter()
+		.copied()
+		.enumerate()
+		.max_by_key(|(_i, value)| (value * 100.0) as u32)
+		.unwrap();
+	values[max_i] = -1.0;
+	let (second_max_i, second_max_value) = values
+		.iter()
+		.copied()
+		.enumerate()
+		.max_by_key(|(_i, value)| (value * 100.0) as u32)
+		.unwrap();
+	values[second_max_i] = -1.0;
+	let (_third_max_i, third_max_value) = values
+		.iter()
+		.copied()
+		.enumerate()
+		.max_by_key(|(_i, value)| (value * 100.0) as u32)
+		.unwrap();
+	let diff = max_value - second_max_value;
+	let max_diff = 0.1;
+	let coef = f32::clamp(diff, 0.0, max_diff) / max_diff;
+	let second_diff = second_max_value - third_max_value;
+	let second_max_diff = 0.1;
+	let s_coef = f32::clamp(second_diff, 0.0, second_max_diff) / second_max_diff;
+	let max_rgb = [
+		((max_i * 1827 + 237) % 256) as f32,
+		((max_i * 1911 + 141) % 256) as f32,
+		((max_i * 1137 + 883) % 256) as f32,
+	];
+	let s_base_rgb = [
+		((second_max_i * 1827 + 237) % 256) as f32,
+		((second_max_i * 1911 + 141) % 256) as f32,
+		((second_max_i * 1137 + 883) % 256) as f32,
+	];
+	let t_rgb = [127.0, 127.0, 127.0];
+	let second_rgb = [
+		interpolate(&indentity, 1.0 - s_coef, 0.0, 1.0, s_base_rgb[0], t_rgb[0]),
+		interpolate(&indentity, 1.0 - s_coef, 0.0, 1.0, s_base_rgb[1], t_rgb[1]),
+		interpolate(&indentity, 1.0 - s_coef, 0.0, 1.0, s_base_rgb[2], t_rgb[2]),
+	];
+	let h = 2.0 - (1.0 - s_coef);
+	image::Rgb([
+		interpolate(&indentity, 1.0 - coef, 0.0, h, max_rgb[0], second_rgb[0]) as u8,
+		interpolate(&indentity, 1.0 - coef, 0.0, h, max_rgb[1], second_rgb[1]) as u8,
+		interpolate(&indentity, 1.0 - coef, 0.0, h, max_rgb[2], second_rgb[2]) as u8,
+	])
+}
+
+fn image_generator_test_52(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale = 10.0;
+	let n = 10;
+	let mut values: Vec<_> = (0..n)
+		.map(|i| {
+			(
+				i as usize,
+				octaves_noise_a(5, &[rx * scale, ry * scale], &[i]),
+			)
+		})
+		.collect();
+	values.sort_by_key(|(_i, value)| (value * 100.0) as u32);
+	values.reverse();
+	fn get_rgb(i: usize, values: &[(usize, f32)]) -> ([f32; 3], f32) {
+		let get_diff = |i: usize| values[i].1 - values[i + 1].1;
+		let max_diff = 0.06;
+		let get_coef = |i: usize| get_diff(i).clamp(0.0, max_diff) / max_diff;
+		let get_base_rgb = |i: usize| -> [f32; 3] {
+			[
+				((i * 1827 + 237) % 256) as f32,
+				((i * 1911 + 141) % 256) as f32,
+				((i * 1137 + 883) % 256) as f32,
+			]
+		};
+
+		if i == values.len() - 1 {
+			(get_base_rgb(values[i].0), 1.0)
+		} else {
+			let coef = get_coef(i);
+			let base = get_base_rgb(values[i].0);
+			if false {
+				(base, 1.0)
+			} else {
+				let (after, after_part) = get_rgb(i + 1, values);
+				let part = 2.0 - after_part;
+				let rgb = [
+					interpolate(&indentity, 1.0 - coef, 0.0, part, base[0], after[0]),
+					interpolate(&indentity, 1.0 - coef, 0.0, part, base[1], after[1]),
+					interpolate(&indentity, 1.0 - coef, 0.0, part, base[2], after[2]),
+				];
+				(rgb, (1.0 - coef) / part)
+			}
+		}
+	}
+	let rgb = get_rgb(0, &values).0;
+	image::Rgb([rgb[0] as u8, rgb[1] as u8, rgb[2] as u8])
+}
+
+fn image_generator_test_53(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let scale = 10.0;
+	let n = 10;
+	let mut values: Vec<_> = (0..n)
+		.map(|i| {
+			(
+				i as usize,
+				octaves_noise_a(5, &[rx * scale, ry * scale], &[i]),
+			)
+		})
+		.collect();
+	values.sort_by_key(|(_i, value)| (value * 100.0) as u32);
+	values.reverse();
+	fn get_rgb(i: usize, values: &[(usize, f32)]) -> ([f32; 3], f32) {
+		let get_diff = |i: usize| values[i].1 - values[i + 1].1;
+		let max_diff = 0.06;
+		let get_coef = |i: usize| get_diff(i).clamp(0.0, max_diff) / max_diff;
+		let get_base_rgb = |i: usize| -> [f32; 3] {
+			[
+				((i * 1827 + 237) % 256) as f32,
+				((i * 1911 + 141) % 256) as f32,
+				((i * 1137 + 883) % 256) as f32,
+			]
+		};
+		let max_o_diff = 0.25;
+		let get_o_coef = |i: usize| get_diff(i).clamp(0.0, max_o_diff) / max_o_diff;
+		let get_other_rgb = |i: usize| -> [f32; 3] {
+			[
+				((i * 1426 + 119) % 256) as f32,
+				((i * 1892 + 223) % 256) as f32,
+				((i * 3219 + 332) % 256) as f32,
+			]
+		};
+
+		if i == values.len() - 1 {
+			(get_base_rgb(values[i].0), 1.0)
+		} else {
+			let coef = get_coef(i);
+			let base = get_base_rgb(values[i].0);
+			let hhh = if i == 0 {
+				let other = get_other_rgb(values[i].0);
+				let o_coef = get_o_coef(i);
+				[
+					interpolate(&indentity, o_coef, 0.0, 1.0, base[0], other[0]),
+					interpolate(&indentity, o_coef, 0.0, 1.0, base[1], other[1]),
+					interpolate(&indentity, o_coef, 0.0, 1.0, base[2], other[2]),
+				]
+			} else {
+				base
+			};
+			if false {
+				(base, 1.0)
+			} else {
+				let (after, after_part) = get_rgb(i + 1, values);
+				let part = 2.0 - after_part;
+				let rgb = [
+					interpolate(&indentity, 1.0 - coef, 0.0, part, hhh[0], after[0]),
+					interpolate(&indentity, 1.0 - coef, 0.0, part, hhh[1], after[1]),
+					interpolate(&indentity, 1.0 - coef, 0.0, part, hhh[2], after[2]),
+				];
+				(rgb, (1.0 - coef) / part)
+			}
+		}
+	}
+	let rgb = get_rgb(0, &values).0;
+	image::Rgb([rgb[0] as u8, rgb[1] as u8, rgb[2] as u8])
+}
+
 fn render_to_file(
 	generator: &dyn Fn(f32, f32) -> image::Rgb<u8>,
 	side: u32,
@@ -840,9 +1090,9 @@ fn render_to_file(
 }
 
 fn main() {
-	if false {
+	if std::env::args().nth(1).is_some_and(|arg| arg == "the") {
 		std::fs::create_dir_all("output").ok();
-		render_to_file(&image_generator_test_48, 1000, "output/output.png");
+		render_to_file(&image_generator_test_52, 1000, "output/output.png");
 	} else {
 		let generators = [
 			image_generator_test_00,
@@ -894,6 +1144,11 @@ fn main() {
 			image_generator_test_46,
 			image_generator_test_47,
 			image_generator_test_48,
+			image_generator_test_49,
+			image_generator_test_50,
+			image_generator_test_51,
+			image_generator_test_52,
+			image_generator_test_53,
 		];
 		std::fs::create_dir_all("output").ok();
 		for (i, generator) in generators.iter().enumerate() {
