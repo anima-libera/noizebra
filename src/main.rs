@@ -1075,6 +1075,23 @@ fn image_generator_test_53(rx: f32, ry: f32) -> image::Rgb<u8> {
 	image::Rgb([rgb[0] as u8, rgb[1] as u8, rgb[2] as u8])
 }
 
+fn image_generator_test_54(rx: f32, ry: f32) -> image::Rgb<u8> {
+	let base_rx = rx;
+	let base_ry = ry;
+	let scale_m = 4.0;
+	let scale_a = 10.0 * octaves_noise(4, &[rx * scale_m, ry * scale_m], &[4]);
+	let nosie_value_a = octaves_noise(15, &[rx * scale_a, ry * scale_a], &[1]);
+	let angle = nosie_value_a * TAU;
+	let scale_d = 10.0;
+	let distance = 0.2 * octaves_noise(4, &[rx * scale_d, ry * scale_d], &[3]);
+	let rx = rx + f32::cos(angle) * distance;
+	let ry = ry + f32::sin(angle) * distance;
+	let dist_to_moved_base = (rx - (base_rx - 0.5)).hypot(ry - base_ry);
+	let white = dist_to_moved_base > 0.5;
+	let grey = if white { 255 } else { 0 };
+	image::Rgb([grey, grey, grey])
+}
+
 fn render_to_file(
 	generator: &dyn Fn(f32, f32) -> image::Rgb<u8>,
 	side: u32,
@@ -1092,7 +1109,7 @@ fn render_to_file(
 fn main() {
 	if std::env::args().nth(1).is_some_and(|arg| arg == "the") {
 		std::fs::create_dir_all("output").ok();
-		render_to_file(&image_generator_test_52, 1000, "output/output.png");
+		render_to_file(&image_generator_test_54, 1000, "output/output.png");
 	} else if std::env::args().nth(1).is_some_and(|arg| arg == "long") {
 		std::fs::create_dir_all("output").ok();
 		render_to_file(&image_generator_test_20, 3000, "output/output.png");
@@ -1152,6 +1169,7 @@ fn main() {
 			image_generator_test_51,
 			image_generator_test_52,
 			image_generator_test_53,
+			image_generator_test_54,
 		];
 		std::fs::create_dir_all("output").ok();
 		for (i, generator) in generators.iter().enumerate() {
